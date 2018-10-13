@@ -7,8 +7,9 @@ let rename = require('gulp-rename')
 let replace = require('gulp-replace')
 let stylus = require('gulp-stylus')// 支持stylus
 let babel = require('gulp-babel') // 支持async/await
+let pug = require('gulp-pug')
 let sourcemaps = require('gulp-sourcemaps')// 微信开发者工具只支持行内sourcemap
-let plumber = require('gulp-plumber')// stylys,babel编译抛出错误不退出
+let plumber = require('gulp-plumber')// stylus,babel编译抛出错误不退出
 
 const dist = './dist/**/*'
 const src = './src/**/*'
@@ -17,7 +18,8 @@ const GLOB = {
   static: ['json', 'wxss', 'wxml'].map(item => `./src/**/*.${item}`),
   stylus: './src/**/*.styl',
   js: ['./src/**/*.js', '!./src/lib/**/*.js'],
-  lib: './src/lib/**/*.js' // 这部分js不经过babel编译，直接拷贝到dist中
+  lib: './src/lib/**/*.js', // 这部分js不经过babel编译，直接拷贝到dist中
+  pug: './src/**/*.pug'
 }
 
 function copyFile(file){  
@@ -48,7 +50,7 @@ gulp.task('cleanDist', function(){
   return del(dist)
 })
 
-// stylus
+// stylus --> wxss
 gulp.task('complieStylus', function(){
   return compileStylus(GLOB.stylus)
 })
@@ -79,17 +81,30 @@ gulp.task('compileJS', function(){
   return stream 
 })
 
+//pug --> wxml
+
+gulp.task('compilePug', function(){
+  let glob = GLOB.pug,
+    stream = gulp.src(glob)
+      .pipe(plumber())
+      .pipe(pug())
+      .pipe(rename(path => path.extname = '.wxml'))
+      .pipe(gulp.dest('./dist'))
+  return stream
+})
+
 gulp.task('default', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS'],
+    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug'],
     function(){
       watch(GLOB.static, ['copyStatic'])
       watch(GLOB.lib, ['copyLib'])
       watch(GLOB.stylus, ['complieStylus'])
       watch(GLOB.js, ['compileJS'])
-      console.log(chalk.green('需要重启微信开发者工具'))
+      watch(GLOB.pug, ['compilePug'])
       cb()
+      console.log(chalk.green('为避免未知错误，需要重启微信开发者工具 ~~~ watching (ctrl + c 退出)'))
     }
   )
   
