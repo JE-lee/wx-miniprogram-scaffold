@@ -5,7 +5,7 @@ let chalk = require('chalk')
 let runSequence = require('run-sequence')
 let rename = require('gulp-rename')
 let replace = require('gulp-replace')
-let gulpWatch = require('gulp-watch')
+let gulpWatch = require('gulp-watch')// gulp.watch 不能watch 新增的多层目录下的子文件
 let stylus = require('gulp-stylus')// 支持stylus
 let babel = require('gulp-babel') // 支持async/await
 let pug = require('gulp-pug')
@@ -33,19 +33,45 @@ function copyFile(file){
   })
 }
 
-function watch(glob, tasks){
-  return gulp.watch(glob, tasks)
-    .on('change', function(event){
-      console.log('File ' + event.path + ' was ' + chalk.green(`${event.type}`) + ', running tasks...');
-    })
+function watch(glob){
+  return gulpWatch(glob, function(file){
+    console.log(`${file.path} has been ${chalk.green(file.event)}`)
+  })
 }
 
-function compileStylus(glob){
-  return gulp.src(glob)
-    .pipe(plumber())
+function compileStylus(stream){
+  return stream.pipe(plumber())
     .pipe(stylus())
     .pipe(rename(path => path.extname = '.wxss'))
     .pipe(gulp.dest('./dist'))
+}
+
+function minifyImage(stream){
+  return stream.pipe(imagemin())
+  .pipe(gulp.dest('./dist'))
+}
+
+function copyStatic(stream){
+  return stream.pipe(gulp.dest('./dist'))
+}
+
+function compileJS(stream){
+  return stream.pipe(plumber())
+  .pipe(sourcemaps.init())
+  .pipe(babel())
+  .pipe(sourcemaps.write()) // 开发者工具上传的时候会删除行内sourcemap
+  .pipe(gulp.dest('./dist'))
+}
+
+function compilePug(stream){
+  return stream.pipe(plumber())
+  .pipe(pug())
+  .pipe(rename(path => path.extname = '.wxml'))
+  .pipe(gulp.dest('./dist'))
+}
+
+function copyLib(stream){
+  return stream.pipe(gulp.dest('./dist/lib'))
 }
 
 
@@ -55,66 +81,51 @@ gulp.task('cleanDist', function(){
 
 // 图片压缩
 gulp.task('minifyImage', function(){
-  let glob = GLOB.img,
-    stream = gulp.src(glob)
-      .pipe(imagemin())
-      .pipe(gulp.dest('./dist'))
+  return minifyImage( gulp.src(GLOB.img))
 })
 
 // stylus --> wxss
-gulp.task('complieStylus', function(){
-  return compileStylus(GLOB.stylus)
+gulp.task('compileStylus', function(){
+  return compileStylus(gulp.src(GLOB.stylus))
 })
 
 //wxml, wxss, json
 gulp.task('copyStatic', function(){
-  let glob = GLOB.static,
-    stream = gulp.src(glob).pipe(gulp.dest('./dist'))
-  return stream
+  return copyStatic(gulp.src(GLOB.static))
 })
 
 //lib/**/*.js 
-gulp.task('copyLib', function () {
-  let glob = GLOB.lib,
-    stream = gulp.src(glob).pipe(gulp.dest('./dist/lib'))
-  return stream
+gulp.task('copyLib', function() {
+  return copyLib(gulp.src(GLOB.lib))
 })
 
 //js
 gulp.task('compileJS', function(){
-  let glob = GLOB.js,
-    stream = gulp.src(glob)
-      .pipe(plumber())
-      .pipe(sourcemaps.init())
-      .pipe(babel())
-      .pipe(sourcemaps.write()) // 开发者工具上传的时候会删除行内sourcemap
-      .pipe(gulp.dest('./dist'))
-  return stream 
+  return compileJS(gulp.src(GLOB.js))
 })
 
 //pug --> wxml
 
 gulp.task('compilePug', function(){
-  let glob = GLOB.pug,
-    stream = gulp.src(glob)
-      .pipe(plumber())
-      .pipe(pug())
-      .pipe(rename(path => path.extname = '.wxml'))
-      .pipe(gulp.dest('./dist'))
-  return stream
+  return compilePug(gulp.src(GLOB.pug))
+})
+
+gulp.task('watch', function(cb){
+  copyStatic(watch(GLOB.static))
+  copyLib(watch(GLOB.lib))
+  compileStylus(watch(GLOB.stylus))
+  compileJS(watch(GLOB.js))
+  compilePug(watch(GLOB.pug))
+  minifyImage(watch(GLOB.img))
+  cb()
 })
 
 gulp.task('default', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug', 'minifyImage'],
+    ['copyStatic', 'copyLib', 'compileStylus', 'compileJS', 'compilePug', 'minifyImage'],
+    'watch',
     function(){
-      watch(GLOB.static, ['copyStatic'])
-      watch(GLOB.lib, ['copyLib'])
-      watch(GLOB.stylus, ['complieStylus'])
-      watch(GLOB.js, ['compileJS'])
-      watch(GLOB.pug, ['compilePug'])
-      watch(GLOB.img, ['minifyImage'])
       cb()
       console.log(chalk.green('为避免未知错误，需要重启微信开发者工具 ~~~ watching (ctrl + c 退出)'))
     }
@@ -125,7 +136,7 @@ gulp.task('default', function(cb){
 gulp.task('build', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug', 'minifyImage'],
+    ['copyStatic', 'copyLib', 'compileStylus', 'compileJS', 'compilePug', 'minifyImage'],
     function () {
       cb()
       console.log(chalk.green('generate success !!!'))
