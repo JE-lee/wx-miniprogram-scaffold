@@ -107,5 +107,16 @@ gulp.task('default', function(cb){
       console.log(chalk.green('为避免未知错误，需要重启微信开发者工具 ~~~ watching (ctrl + c 退出)'))
     }
   )
-  
+})
+
+// 非watch,build项目文件
+gulp.task('build', function(cb){
+  runSequence(
+    'cleanDist',
+    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug'],
+    function () {
+      cb()
+      console.log(chalk.green('generate success !!!'))
+    }
+  )
 })
