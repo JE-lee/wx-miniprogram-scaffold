@@ -1,6 +1,6 @@
 let parse = require('minimist')
 let chalk = require('chalk')
-let path = require('path') 
+let path = require('path')
 let stream = require('stream')
 let mkDir = require('make-dir')
 let fs = require('fs')
@@ -10,22 +10,23 @@ let argv = process.argv.slice(2)
 
 const appJSON = path.join(__dirname, './src/app.json')
 
-function saveStrToFile(str, filePath, force = false){
-  let fileStream = new stream.PassThrough(),
-    isExsit = false 
+function saveStrToFile (str, filePath, force = false) {
+  let fileStream = new stream.PassThrough()
+
+  let isExsit = false
   fileStream.end(str)
   // 如果文件存在，直接返回
   try {
     isExsit = fs.statSync(filePath).isFile()
-  }catch(err){
-    //console.log('err', err)
+  } catch (err) {
+    // console.log('err', err)
   }
-  
-  if(!isExsit || force){
+
+  if (!isExsit || force) {
     return new Promise((resolve, reject) => {
       fileStream.pipe(fs.createWriteStream(filePath))
-      .on('finish', resolve)
-      .on('error', reject)
+        .on('finish', resolve)
+        .on('error', reject)
     })
   } else {
     return Promise.resolve()
@@ -33,58 +34,63 @@ function saveStrToFile(str, filePath, force = false){
 }
 
 // pug
-async function createPug(where){
-  let pugPath = path.parse(where),
-    str = 'text() pug 模板'
+async function createPug (where) {
+  let pugPath = path.parse(where)
+
+  let str = 'text() pug 模板'
 
   await mkDir(pugPath.dir)
   await saveStrToFile(str, where)
 }
 
 // json
-async function createJSON(where){
-  let jsonPath = path.parse(where),
-    str = jsonFormat({
-      navigationBarTitleText: '测试页面'
-    })
+async function createJSON (where) {
+  let jsonPath = path.parse(where)
+
+  let str = jsonFormat({
+    navigationBarTitleText: '测试页面'
+  })
 
   await mkDir(jsonPath.dir)
   await saveStrToFile(str, where)
 }
 
-//styl
-async function createStylus(where){
-  let stylusPath = path.parse(where),
-    str = ''
+// styl
+async function createStylus (where) {
+  let stylusPath = path.parse(where)
+
+  let str = ''
 
   await mkDir(stylusPath.dir)
   await saveStrToFile(str, where)
 }
 
 // js
-async function createJS(where){
-  let jsPath = path.parse(where),
-    str = 'page({})'
+async function createJS (where) {
+  let jsPath = path.parse(where)
+
+  let str = 'page({})'
 
   await mkDir(jsPath.dir)
   await saveStrToFile(str, where)
 }
 
 // 修改app.json
-async function modifyAppJSON(pagePath){
+async function modifyAppJSON (pagePath) {
   let json = JSON.parse(fs.readFileSync(appJSON))
-  if(json.pages.findIndex(item => item === pagePath) == -1){
+  if (json.pages.findIndex(item => item === pagePath) === -1) {
     json.pages.push(pagePath)
   }
-  
+
   await saveStrToFile(jsonFormat(json), appJSON, true)
 }
 
-(async function() {
-  let { _: params } = parse(argv),
-    pageName = params[0] || 'page'
-    pagePath = params[1] ? path.posix.join('src', params[1]) : './src/pages',
-    finalPath = path.posix.join(pagePath, pageName, pageName)
+(async function () {
+  let { _: params } = parse(argv)
+
+  let pageName = params[0] || 'page'
+  let pagePath = params[1] ? path.posix.join('src', params[1]) : './src/pages'
+  let finalPath = path.posix.join(pagePath, pageName, pageName)
   console.log('finalPath', finalPath)
   try {
     await createPug(`${finalPath}.pug`)
@@ -94,6 +100,6 @@ async function modifyAppJSON(pagePath){
     await modifyAppJSON(finalPath.slice(finalPath.indexOf('/') + 1))
     console.log(chalk.green(`page ${finalPath} generate success.`))
   } catch (error) {
-    console.log('error', error)  }
+    console.log('error', error)
+  }
 })()
-

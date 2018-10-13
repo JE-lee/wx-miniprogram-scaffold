@@ -1,10 +1,8 @@
 let gulp = require('gulp')
 let del = require('del')
-let Path = require('path')
 let chalk = require('chalk')
 let runSequence = require('run-sequence')
 let rename = require('gulp-rename')
-let replace = require('gulp-replace')
 let gulpWatch = require('gulp-watch')// gulp.watch 不能watch 新增的多层目录下的子文件
 let stylus = require('gulp-stylus')// 支持stylus
 let babel = require('gulp-babel') // 支持async/await
@@ -14,10 +12,9 @@ let sourcemaps = require('gulp-sourcemaps')// 微信开发者工具只支持行�
 let plumber = require('gulp-plumber')// stylus,babel编译抛出错误不退出
 
 const dist = './dist/**/*'
-const src = './src/**/*'
 
 const GLOB = {
-  img: ['png','jpg','gif', 'jpeg'].map(item => `src/**/*.${item}`),
+  img: ['png', 'jpg', 'gif', 'jpeg'].map(item => `src/**/*.${item}`),
   static: ['json', 'wxss', 'wxml', 'wav', 'mp3', 'mp4'].map(item => `src/**/*.${item}`),
   stylus: 'src/**/*.styl',
   js: ['src/**/*.js', '!src/lib/**/*.js'],
@@ -25,92 +22,83 @@ const GLOB = {
   pug: 'src/**/*.pug'
 }
 
-function copyFile(file){  
-  let distPath = file.replace(__dirname,'').replace('src', 'dist')
-  distPath = Path.join(__dirname, distPath)
-  del(distPath).then((paths) => {
-    gulp.src(file).pipe(gulp.dest(paths[0]))
-  })
-}
-
-function watch(glob){
-  return gulpWatch(glob, function(file){
+function watch (glob) {
+  return gulpWatch(glob, function (file) {
     console.log(`${file.path} has been ${chalk.green(file.event)}`)
   })
 }
 
-function compileStylus(stream){
+function compileStylus (stream) {
   return stream.pipe(plumber())
     .pipe(stylus())
-    .pipe(rename(path => path.extname = '.wxss'))
+    .pipe(rename(path => { path.extname = '.wxss' }))
     .pipe(gulp.dest('./dist'))
 }
 
-function minifyImage(stream){
+function minifyImage (stream) {
   return stream.pipe(imagemin())
-  .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./dist'))
 }
 
-function copyStatic(stream){
+function copyStatic (stream) {
   return stream.pipe(gulp.dest('./dist'))
 }
 
-function compileJS(stream){
+function compileJS (stream) {
   return stream.pipe(plumber())
-  .pipe(sourcemaps.init())
-  .pipe(babel())
-  .pipe(sourcemaps.write()) // 开发者工具上传的时候会删除行内sourcemap
-  .pipe(gulp.dest('./dist'))
+    .pipe(sourcemaps.init())
+    .pipe(babel())
+    .pipe(sourcemaps.write()) // 开发者工具上传的时候会删除行内sourcemap
+    .pipe(gulp.dest('./dist'))
 }
 
-function compilePug(stream){
+function compilePug (stream) {
   return stream.pipe(plumber())
-  .pipe(pug())
-  .pipe(rename(path => path.extname = '.wxml'))
-  .pipe(gulp.dest('./dist'))
+    .pipe(pug())
+    .pipe(rename(path => { path.extname = '.wxml' }))
+    .pipe(gulp.dest('./dist'))
 }
 
-function copyLib(stream){
+function copyLib (stream) {
   return stream.pipe(gulp.dest('./dist/lib'))
 }
 
-
-gulp.task('cleanDist', function(){
+gulp.task('cleanDist', function () {
   return del(dist)
 })
 
 // 图片压缩
-gulp.task('minifyImage', function(){
-  return minifyImage( gulp.src(GLOB.img))
+gulp.task('minifyImage', function () {
+  return minifyImage(gulp.src(GLOB.img))
 })
 
 // stylus --> wxss
-gulp.task('compileStylus', function(){
+gulp.task('compileStylus', function () {
   return compileStylus(gulp.src(GLOB.stylus))
 })
 
-//wxml, wxss, json
-gulp.task('copyStatic', function(){
+// wxml, wxss, json
+gulp.task('copyStatic', function () {
   return copyStatic(gulp.src(GLOB.static))
 })
 
-//lib/**/*.js 
-gulp.task('copyLib', function() {
+// lib/**/*.js
+gulp.task('copyLib', function () {
   return copyLib(gulp.src(GLOB.lib))
 })
 
-//js
-gulp.task('compileJS', function(){
+// js
+gulp.task('compileJS', function () {
   return compileJS(gulp.src(GLOB.js))
 })
 
-//pug --> wxml
+// pug --> wxml
 
-gulp.task('compilePug', function(){
+gulp.task('compilePug', function () {
   return compilePug(gulp.src(GLOB.pug))
 })
 
-gulp.task('watch', function(cb){
+gulp.task('watch', function (cb) {
   copyStatic(watch(GLOB.static))
   copyLib(watch(GLOB.lib))
   compileStylus(watch(GLOB.stylus))
@@ -120,12 +108,12 @@ gulp.task('watch', function(cb){
   cb()
 })
 
-gulp.task('default', function(cb){
+gulp.task('default', function (cb) {
   runSequence(
     'cleanDist',
     ['copyStatic', 'copyLib', 'compileStylus', 'compileJS', 'compilePug', 'minifyImage'],
     'watch',
-    function(){
+    function () {
       cb()
       console.log(chalk.green('为避免未知错误，需要重启微信开发者工具 ~~~ watching (ctrl + c 退出)'))
     }
@@ -133,7 +121,7 @@ gulp.task('default', function(cb){
 })
 
 // 非watch,build项目文件
-gulp.task('build', function(cb){
+gulp.task('build', function (cb) {
   runSequence(
     'cleanDist',
     ['copyStatic', 'copyLib', 'compileStylus', 'compileJS', 'compilePug', 'minifyImage'],
