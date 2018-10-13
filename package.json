@@ -5,12 +5,17 @@
   "main": "gulpfile.js",
   "dependencies": {},
   "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-3": "^6.24.1",
     "chalk": "^2.4.1",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
     "gulp-plumber": "^1.2.0",
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^1.0.0",
+    "gulp-sourcemaps": "^2.6.4",
     "gulp-stylus": "^2.7.0",
     "run-sequence": "^2.2.1"
   },

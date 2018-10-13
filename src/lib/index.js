@@ -1,0 +1,1 @@
+ regeneratorRuntime = require('./regenerator-runtime') //微信小程序的顶层对象是window，不是gloabal

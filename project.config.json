@@ -10,6 +10,7 @@
 	},
 	"compileType": "miniprogram",
 	"libVersion": "1.9.1",
-	"appid": "",
-	"projectname": "wx-program-scaffold"
+	"appid": "wx64024903cfb0415d",
+	"projectname": "wx-program-scaffold",
+	"condition": {}
 }

@@ -1,21 +1,24 @@
 let gulp = require('gulp')
-let plumber = require('gulp-plumber')
 let del = require('del')
-let replace = require('gulp-replace')
 let Path = require('path')
 let chalk = require('chalk')
-let stylus = require('gulp-stylus')
 let runSequence = require('run-sequence')
 let rename = require('gulp-rename')
+let replace = require('gulp-replace')
+let stylus = require('gulp-stylus')// 支持stylus
+let babel = require('gulp-babel') // 支持async/await
+let sourcemaps = require('gulp-sourcemaps')// 微信开发者工具只支持行内sourcemap
+let plumber = require('gulp-plumber')// stylys,babel编译抛出错误不退出
 
 const dist = './dist/**/*'
 const src = './src/**/*'
 
 const GLOB = {
-  static: ['json','wxss','wxml'].map(item => `./src/**/*.${item}`),
-  stylus: './src/**/*.styl'
+  static: ['json', 'wxss', 'wxml'].map(item => `./src/**/*.${item}`),
+  stylus: './src/**/*.styl',
+  js: ['./src/**/*.js', '!./src/lib/**/*.js'],
+  lib: './src/lib/**/*.js' // 这部分js不经过babel编译，直接拷贝到dist中
 }
-
 
 function copyFile(file){  
   let distPath = file.replace(__dirname,'').replace('src', 'dist')
@@ -57,13 +60,35 @@ gulp.task('copyStatic', function(){
   return stream
 })
 
+//lib/**/*.js 
+gulp.task('copyLib', function () {
+  let glob = GLOB.lib,
+    stream = gulp.src(glob).pipe(gulp.dest('./dist/lib'))
+  return stream
+})
+
+//js
+gulp.task('compileJS', function(){
+  let glob = GLOB.js,
+    stream = gulp.src(glob)
+      .pipe(plumber())
+      .pipe(sourcemaps.init())
+      .pipe(babel())
+      .pipe(sourcemaps.write()) // 开发者工具上传的时候会删除行内sourcemap
+      .pipe(gulp.dest('./dist'))
+  return stream 
+})
+
 gulp.task('default', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'complieStylus'],
+    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS'],
     function(){
       watch(GLOB.static, ['copyStatic'])
+      watch(GLOB.lib, ['copyLib'])
       watch(GLOB.stylus, ['complieStylus'])
+      watch(GLOB.js, ['compileJS'])
+      console.log(chalk.green('需要重启微信开发者工具'))
       cb()
     }
   )
