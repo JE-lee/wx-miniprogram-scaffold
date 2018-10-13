@@ -1,0 +1,23 @@
+{
+  "name": "wx-program-scaffold",
+  "version": "1.0.0",
+  "description": "微信小程序项目脚手架工具",
+  "main": "gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "chalk": "^2.4.1",
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-plumber": "^1.2.0",
+    "gulp-replace": "^1.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "gulp"
+  },
+  "keywords": [
+    "scaffold"
+  ],
+  "author": "JE-lee",
+  "license": "ISC"
+}
