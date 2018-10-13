@@ -8,6 +8,7 @@ let replace = require('gulp-replace')
 let stylus = require('gulp-stylus')// 支持stylus
 let babel = require('gulp-babel') // 支持async/await
 let pug = require('gulp-pug')
+let imagemin = require('gulp-imagemin')
 let sourcemaps = require('gulp-sourcemaps')// 微信开发者工具只支持行内sourcemap
 let plumber = require('gulp-plumber')// stylus,babel编译抛出错误不退出
 
@@ -15,7 +16,8 @@ const dist = './dist/**/*'
 const src = './src/**/*'
 
 const GLOB = {
-  static: ['json', 'wxss', 'wxml'].map(item => `./src/**/*.${item}`),
+  img: ['png','jpg','gif', 'jpeg'].map(item => `./src/**/*.${item}`),
+  static: ['json', 'wxss', 'wxml', 'wav', 'mp3', 'mp4'].map(item => `./src/**/*.${item}`),
   stylus: './src/**/*.styl',
   js: ['./src/**/*.js', '!./src/lib/**/*.js'],
   lib: './src/lib/**/*.js', // 这部分js不经过babel编译，直接拷贝到dist中
@@ -48,6 +50,14 @@ function compileStylus(glob){
 
 gulp.task('cleanDist', function(){
   return del(dist)
+})
+
+// 图片压缩
+gulp.task('minifyImage', function(){
+  let glob = GLOB.img,
+    stream = gulp.src(glob)
+      .pipe(imagemin())
+      .pipe(gulp.dest('./dist'))
 })
 
 // stylus --> wxss
@@ -96,13 +106,14 @@ gulp.task('compilePug', function(){
 gulp.task('default', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug'],
+    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug', 'minifyImage'],
     function(){
       watch(GLOB.static, ['copyStatic'])
       watch(GLOB.lib, ['copyLib'])
       watch(GLOB.stylus, ['complieStylus'])
       watch(GLOB.js, ['compileJS'])
       watch(GLOB.pug, ['compilePug'])
+      watch(GLOB.img, ['minifyImage'])
       cb()
       console.log(chalk.green('为避免未知错误，需要重启微信开发者工具 ~~~ watching (ctrl + c 退出)'))
     }
@@ -113,7 +124,7 @@ gulp.task('default', function(cb){
 gulp.task('build', function(cb){
   runSequence(
     'cleanDist',
-    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug'],
+    ['copyStatic', 'copyLib', 'complieStylus', 'compileJS', 'compilePug', 'minifyImage'],
     function () {
       cb()
       console.log(chalk.green('generate success !!!'))
