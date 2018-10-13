@@ -5,6 +5,7 @@ let chalk = require('chalk')
 let runSequence = require('run-sequence')
 let rename = require('gulp-rename')
 let replace = require('gulp-replace')
+let gulpWatch = require('gulp-watch')
 let stylus = require('gulp-stylus')// 支持stylus
 let babel = require('gulp-babel') // 支持async/await
 let pug = require('gulp-pug')
@@ -16,12 +17,12 @@ const dist = './dist/**/*'
 const src = './src/**/*'
 
 const GLOB = {
-  img: ['png','jpg','gif', 'jpeg'].map(item => `./src/**/*.${item}`),
-  static: ['json', 'wxss', 'wxml', 'wav', 'mp3', 'mp4'].map(item => `./src/**/*.${item}`),
-  stylus: './src/**/*.styl',
-  js: ['./src/**/*.js', '!./src/lib/**/*.js'],
-  lib: './src/lib/**/*.js', // 这部分js不经过babel编译，直接拷贝到dist中
-  pug: './src/**/*.pug'
+  img: ['png','jpg','gif', 'jpeg'].map(item => `src/**/*.${item}`),
+  static: ['json', 'wxss', 'wxml', 'wav', 'mp3', 'mp4'].map(item => `src/**/*.${item}`),
+  stylus: 'src/**/*.styl',
+  js: ['src/**/*.js', '!src/lib/**/*.js'],
+  lib: 'src/lib/**/*.js', // 这部分js不经过babel编译，直接拷贝到dist中
+  pug: 'src/**/*.pug'
 }
 
 function copyFile(file){  
