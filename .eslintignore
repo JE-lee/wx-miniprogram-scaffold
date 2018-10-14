@@ -1,3 +1,5 @@
 dist
 src/lib
 node_modules
+generator-wxminiprogram/app/templates/src/lib
+generator-wxminiprogram/node_modules
