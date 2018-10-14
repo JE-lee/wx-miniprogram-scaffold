@@ -67,4 +67,3 @@ module.exports = class extends Generator {
     console.log(chalk.green('generate sucess'))
   }
 }
-
