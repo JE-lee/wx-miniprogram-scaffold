@@ -1,7 +1,19 @@
 let Generator = require('yeoman-generator')
 let path = require('path')
 let chalk = require('chalk')
-let config = require('../config')
+
+const files = [
+  '.babelrc',
+  '.editorconfig',
+  '.eslintignore',
+  '.eslintrc.js',
+  '.gitattributes',
+  '.gitignore',
+  'create-page.js',
+  'gulpfile.js',
+  'package.json',
+  'project.config.json'
+]
 
 const prompt = [
   {
@@ -44,7 +56,7 @@ module.exports = class extends Generator {
     }
     // 是否启用async/await 特性
     this.fs.copy(glob, destinationPath, { ignoreNoMatch: true })
-    config.files.forEach(file => {
+    files.forEach(file => {
       this.fs.copy(path.join(templatePath, file), path.join(destinationPath, file), { ignoreNoMatch: true })
     })
 
