@@ -7,9 +7,10 @@ TODO:
 [:ballot_box_with_check:] gulp-sass 编译错误后，就算修复错误也不会再次编译并且pipe数据到dist文件夹中，（暂时使用替代的方案）
 [:ballot_box_with_check:] babel编译选项优化,根据小程序的运行时环境来配置babel
 [:soon:] V2.2.0之后支持npm
-[:soon:] createpage
+[:ballot_box_with_check:] createpage
 [:soon:] createpage 选择分包
 [:soon:] precommit
+[:soon:] precommit 中增量eslint
 [:soon:] eslint
 
 ## pug
@@ -84,6 +85,14 @@ Page({
 目前小程序开发者工具调试只支持行内sourcemap。
 :smile:但是报错在开发者工具点击错误时堆栈跳转对应语句却是跳转到编译后的js文件中，这点还是可以优化的。
 
+## createpage用法
+```javascript
+npm run create:page [pagename] [page path]
+// 如果你想在src下面快速建立一个user页面，你可以执行下面的命令
+npm run create:page user
+// 在src/pages/people 下面建立user
+npm run create:page user pages/people
+```
 
 
 

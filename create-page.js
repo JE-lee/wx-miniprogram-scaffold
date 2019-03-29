@@ -69,7 +69,7 @@ async function createStylus (where) {
 async function createJS (where) {
   let jsPath = path.parse(where)
 
-  let str = 'page({})'
+  let str = 'Page({})'
 
   await mkDir(jsPath.dir)
   await saveStrToFile(str, where)
@@ -89,15 +89,17 @@ async function modifyAppJSON (pagePath) {
   let { _: params } = parse(argv)
 
   let pageName = params[0] || 'page'
-  let pagePath = params[1] ? path.posix.join('src', params[1]) : './src/pages'
-  let finalPath = path.posix.join(pagePath, pageName, pageName)
-  console.log('finalPath', finalPath)
+  let pagePath = params[1] || './src/pages'
+  let prefix = pagePath.indexOf('/') !== -1 ? 'posix' : 'win32'
+  pagePath = path[prefix].join('src', params[1])
+
+  let finalPath = path[prefix].join(pagePath, pageName, pageName).replace(/\\/g, '/')
   try {
     await createPug(`${finalPath}.pug`)
     await createJSON(`${finalPath}.json`)
     await createStylus(`${finalPath}.styl`)
     await createJS(`${finalPath}.js`)
-    await modifyAppJSON(finalPath.slice(finalPath.indexOf('/') + 1))
+    await modifyAppJSON(finalPath.slice(finalPath.replace(/\\/g, '/').indexOf('/') + 1))
     console.log(chalk.green(`page ${finalPath} generate success.`))
   } catch (error) {
     console.log('error', error)
