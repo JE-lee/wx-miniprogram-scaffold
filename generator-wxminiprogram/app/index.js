@@ -2,36 +2,25 @@ let Generator = require('yeoman-generator')
 let path = require('path')
 let chalk = require('chalk')
 
-const files = [
-  '.babelrc',
-  '.editorconfig',
-  '.eslintignore',
-  '.eslintrc.js',
-  '.gitattributes',
-  '.gitignore',
-  'create-page.js',
-  'gulpfile.js',
-  'package.json',
-  'project.config.json'
-]
+const files = require('../config').files
 
 const prompt = [
   {
     type: 'input',
     name: 'projectname',
-    message: 'Your weixin miniprogram project name',
+    message: '你的微信小程序项目名称',
     default: ''
   },
   {
     type: 'input',
     name: 'appid',
-    message: 'Your weixin miniprogram appid',
+    message: '微信小程序appid',
     default: ''
   },
   {
     type: 'confirm',
     name: 'cool',
-    message: 'Would you like to enable the async/await feature? (That takes up a couple of kilobytes of space)',
+    message: '是否使用async/await 特性（这些增加一点代码体积）',
     default: false
   }
 ]

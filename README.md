@@ -9,9 +9,10 @@ TODO:
 [:soon:] V2.2.0之后支持npm
 [:ballot_box_with_check:] createpage
 [:soon:] createpage 选择分包
-[:soon:] precommit
+[:ballot_box_with_check:] precommit
+[:ballot_box_with_check:] eslint
 [:soon:] precommit 中增量eslint
-[:soon:] eslint
+[:soon:] yoman generate
 
 ## pug
 你可以使用pug作为wxml的模板引擎

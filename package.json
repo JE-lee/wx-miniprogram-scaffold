@@ -40,7 +40,8 @@
     "build": "gulp build",
     "eslint": "./node_modules/.bin/eslint . --fix",
     "precommit": "npm run eslint",
-    "create:page": "node ./create-page.js"
+    "create:page": "node ./create-page.js",
+    "update:yeomantpl": "node generator-wxminiprogram/update-yeoman-template.js"
   },
   "pre-commit": [
     "eslint"

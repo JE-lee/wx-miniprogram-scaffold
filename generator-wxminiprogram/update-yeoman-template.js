@@ -3,6 +3,7 @@ let path = require('path')
 let del = require('del')
 let fs = require('fs')
 let config = require('./config')
+let chalk = require('chalk')
 
 // 复制模板文件到yeoman的模板文件夹
 let templatePath = path.resolve(__dirname, '..')
@@ -25,7 +26,7 @@ async function update () {
       Promise.all(files.map(file => {
         return copyFile(path.join(templatePath, file), path.join(dest, file))
       })).then(() => {
-        console.log('update finish')
+        console.log(chalk.green('update finish'))
       })
     })
 }
