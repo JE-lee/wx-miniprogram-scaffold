@@ -55,8 +55,7 @@ env.modules我们不指定，为auto的情况下是采用commonjs的规范。
 
 ## async/await 支持
 得益于babel，我们可以使用async/await。
-babel 将async函数编译成[generator function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Generator)，但是小程序的运行环境缺少
-Generator Function (没有regeneratorRuntime)的支持，因此我们需要引入其[polyfill](https://github.com/facebook/regenerator)
+babel 将async函数编译成[generator function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Generator)，但是小程序的运行环境缺少Generator Function (没有regeneratorRuntime)的支持，因此我们需要引入其[polyfill](https://github.com/facebook/regenerator)
 ```javascript
 Page({
   onLoad(){
